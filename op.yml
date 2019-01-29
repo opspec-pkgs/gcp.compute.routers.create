@@ -1,0 +1,72 @@
+description: creates a google cloud platform cloud router (if it doesn't exist)
+inputs:
+  advertisementMode:
+    string:
+      default: DEFAULT
+      description: "new advertisement mode for this cloud router
+        CUSTOM: Custom (user-configured) BGP advertisements
+        DEFAULT: Default (Google-managed) BGP advertisements"
+      constraints: {enum: [ CUSTOM, DEFAULT ]}
+  asn:
+    number:
+      default: -1
+      description: optional BGP autonomous system number (ASN) for this cloud router.
+        Must be a 16-bit or 32-bit private ASN as defined in https://tools.ietf.org/html/rfc6996, for example `64512`
+      constraints: { format: integer }
+  async:
+    boolean:
+      default: false
+      description: don't wait for the op to complete
+  description:
+    string:
+      default: ' '
+      description: optional, textual description for the cloud router
+      constraints: {minLength: 1}
+  keyFile:
+    string:
+      description: key file for a GCP service account w/ `Compute Network Admin` role
+      isSecret: true
+  name:
+    string:
+      description: name of provisioned cloud router
+      constraints: {minLength: 1}
+  network:
+    string:
+      description: network to which the cloud router belongs
+      constraints: {minLength: 1}
+  projectId:
+    string:
+      description: id of the GCP project containing the cloud router
+      constraints: {minLength: 1}
+  region:
+    string:
+      description: region of provisioned cloud router (e.g. us-central1)
+      constraints: { minLength: 1 }
+  setAdvertisementRanges:
+    string:
+      default: ' '
+      description: comma separated list of (optionally) named IP ranges, in CIDR format, to dynamically advertise on this cloud router.
+        For example, to advertise a specific range, use --set-advertisement-ranges=192.168.10.0/24.
+        To store a description with the range, use --set-advertisement-ranges=192.168.10.0/24=my-networks.
+        This list can only be specified in custom advertisement mode.
+      constraints: {minLength: 1}
+name: github.com/opspec-pkgs/gcp.cloudrouter.create
+opspec: 0.1.6
+run:
+  container:
+    image: { ref: 'google/cloud-sdk:229.0.0-alpine' }
+    files:
+      /cmd.sh:
+      /keyFile: $(keyFile)
+    cmd: [ /cmd.sh ]
+    envVars:
+      advertisementMode:
+      asn:
+      async:
+      CLOUDSDK_COMPUTE_REGION: $(region)
+      description:
+      name:
+      network:
+      projectId:
+      setAdvertisementRanges:
+version: 1.0.0
