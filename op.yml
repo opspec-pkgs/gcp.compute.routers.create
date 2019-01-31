@@ -50,23 +50,31 @@ inputs:
         To store a description with the range, use --set-advertisement-ranges=192.168.10.0/24=my-networks.
         This list can only be specified in custom advertisement mode.
       constraints: {minLength: 1}
-name: github.com/opspec-pkgs/gcp.cloudrouter.create
+name: github.com/opspec-pkgs/gcp.compute.routers.create
 opspec: 0.1.6
 run:
-  container:
-    image: { ref: 'google/cloud-sdk:229.0.0-alpine' }
-    files:
-      /cmd.sh:
-      /keyFile: $(keyFile)
-    cmd: [ /cmd.sh ]
-    envVars:
-      advertisementMode:
-      asn:
-      async:
-      CLOUDSDK_COMPUTE_REGION: $(region)
-      description:
-      name:
-      network:
-      projectId:
-      setAdvertisementRanges:
+  serial:
+    # ensure service enabled
+    - op:
+        ref: github.com/opspec-pkgs/gcp.services.enable#1.0.0
+        inputs:
+          keyFile:
+          projectId:
+          service: compute.googleapis.com
+    - container:
+        image: { ref: 'google/cloud-sdk:229.0.0-alpine' }
+        files:
+          /cmd.sh:
+          /keyFile: $(keyFile)
+        cmd: [ /cmd.sh ]
+        envVars:
+          advertisementMode:
+          asn:
+          async:
+          CLOUDSDK_COMPUTE_REGION: $(region)
+          description:
+          name:
+          network:
+          projectId:
+          setAdvertisementRanges:
 version: 1.0.0
